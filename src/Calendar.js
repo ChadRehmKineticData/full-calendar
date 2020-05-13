@@ -3,16 +3,19 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { compose, withHandlers } from 'recompose';
+import moment from 'moment';
 
 import './main.scss';
 import { events } from './events';
 
-export const CalendarComponent = ({handleEventClick, handleClick}) => {
+export const handleClick = fullcalendar => event => {
+  const api = fullcalendar.current.getApi();
+  api.gotoDate(moment().subtract(1, 'months').format());
+}
+
+export const CalendarComponent = ({handleEventClick}) => {
   const apiRef = useRef(null);  
-  const clickhandler = useMemo(() => {
-    console.log("hi");
-    handleClick(apiRef)
-  },[apiRef]);
+  const clickhandler = useMemo(() => handleClick(apiRef), [apiRef]);
 
   return ( 
     <Fragment>
@@ -34,19 +37,16 @@ export const CalendarComponent = ({handleEventClick, handleClick}) => {
           timeGridDay: 'agenda'
         }}
         eventClick={handleEventClick}
+        fixedWeekCount={false}
       />
     </Fragment>
   )
 };
-
-export const handleClick = fullcalendar => event => {
-  console.log(fullcalendar);
-}
 
 const handleEventClick = () => ({event}) => {
   console.log(event.extendedProps.details)
 }
 
 export const Calendar = compose(
-  withHandlers({handleEventClick, handleClick})
+  withHandlers({handleEventClick})
 )(CalendarComponent)
